@@ -1,0 +1,70 @@
+[project]
+name = "calpdf"
+version = "0.1.0"
+description = "A simple PDF toolkit to manage my Calibre library"
+requires-python = ">=3.11"
+readme = "README.md"
+license = { text = "MIT" }
+keywords = ["pdf", "calibre", "cover", "toc", "optimize"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: End Users/Desktop",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Utilities",
+]
+dependencies = ["pikepdf", "Pillow", "typer", "requests", "rich"]
+
+[project.scripts]
+calpdf = "calpdf.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/calpdf"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = ["pytest", "ruff", "mypy"]
+
+# ---------------------------------------------------------------------------
+# Tooling
+# ---------------------------------------------------------------------------
+
+[tool.ruff]
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "B",   # flake8-bugbear
+  "SIM", # flake8-simplify
+]
+
+[tool.ruff.lint.flake8-bugbear]
+# Typer intentionally calls typer.Option(...) / typer.Argument(...) in
+# default arguments; exempt them from B008.
+extend-immutable-calls = ["typer.Argument", "typer.Option"]
+
+[tool.mypy]
+python_version = "3.11"
+packages = ["calpdf"]
+mypy_path = "src"
+check_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+
+[[tool.mypy.overrides]]
+module = ["pikepdf", "PIL", "PIL.*", "requests"]
+ignore_missing_imports = true
