@@ -69,7 +69,7 @@ If you swap the arguments and pass the image as the first argument, calpdf detec
 
 ## The `dl-cover` command
 
-The `dl-cover` command downloads a cover image for a book. Pass an *Amazon Standard Identification Number (ASIN)* or an *International Standard Book Number (ISBN)*:
+The `dl-cover` command downloads a cover image for a book. Pass an _Amazon Standard Identification Number (ASIN)_ or an _International Standard Book Number (ISBN)_:
 
 ```bash
 # Download a cover by ASIN
@@ -115,7 +115,7 @@ If `qpdf` fails, calpdf stops and reports an error. Use `--force` to continue an
 
 ## The `export-toc` command
 
-The `export-toc` command reads the bookmarks of a PDF and exports them as a *table of contents (ToC)*. Page numbers are 1-indexed physical page positions.
+The `export-toc` command reads the bookmarks of a PDF and exports them as a _table of contents (ToC)_. Page numbers are 1-indexed physical page positions.
 
 By default, calpdf prints JSON to standard output, which is convenient for piping to other programs. Use `--output` to write the JSON to a file, or `--format tree` for a human-readable tree instead:
 
