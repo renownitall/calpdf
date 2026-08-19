@@ -34,3 +34,6 @@ htmlcov/
 # Linting / type checking
 .mypy_cache/
 .ruff_cache/
+
+# Documentation
+style-guide.md
