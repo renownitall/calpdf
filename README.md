@@ -8,7 +8,7 @@ This document is for people who are comfortable using a terminal. You'll need Py
 
 ## Installation
 
-Run the following command from the project directory to install calpdf:
+To install calpdf, run the following command from the project directory:
 
 ```bash
 uv pip install .
@@ -33,7 +33,7 @@ calpdf --no-color COMMAND ...   # disable colored output
 calpdf --version                # show the version and exit
 ```
 
-The `--quiet` and `--version` options have the short forms `-q` and `-v`. Run `calpdf` without arguments to see the help text and the list of commands. Run `calpdf COMMAND --help` to see a command's options.
+The `--quiet` and `--version` options have the short forms `-q` and `-v`. To see the help text and the list of commands, run `calpdf` without arguments. To view a command's options, run `calpdf COMMAND --help`.
 
 ## The `replace-cover` command
 
@@ -55,7 +55,7 @@ calpdf replace-cover book.pdf cover.jpg -o output.pdf
 calpdf replace-cover book.pdf cover.jpg --pages 2
 ```
 
-By default, the command updates the PDF in place and keeps a backup of the original file. Use `--output` (short form `-o`) to write to a new file instead. For more information, see [Backup behavior](#backup-behavior).
+By default, the command updates the PDF in place and keeps a backup of the original file. To write to a new file instead, use `--output` (short form `-o`). For more information, see [Backup behavior](#backup-behavior).
 
 The `--pages` option controls how many pages the image replaces, and it only matters in replace mode. The `--dpi` option sets the resolution of the cover image, with a default of 300 dots per inch.
 
@@ -79,7 +79,7 @@ calpdf dl-cover B08X92NRKV
 calpdf dl-cover 9780140328721 -o mycover.jpg
 ```
 
-Without `--output`, calpdf saves the image in the current directory as `BOOK_ID_cover.jpg`, where `BOOK_ID` is the identifier you passed. The identifier may only contain letters, digits, and dashes.
+Without `--output`, calpdf saves the image in the current directory as `BOOK_ID_cover.jpg`, where `BOOK_ID` is the identifier you passed. The identifier can only contain letters, digits, and dashes.
 
 calpdf requests the cover from several sources in order, starting with Amazon and moving on to Open Library. It uses the first valid image it receives, and it skips responses that are too small or that don't look like an image.
 
@@ -109,15 +109,15 @@ calpdf optimize book.pdf --strip-color-profiles
 calpdf optimize book.pdf -o optimized.pdf
 ```
 
-The first example updates the PDF in place and keeps a backup. Use `--keep-metadata` to keep the metadata, and use `--strip-color-profiles` to remove color profiles by converting colors to RGB with Ghostscript. This option requires the `gs` program.
+The first example updates the PDF in place and keeps a backup. To keep the metadata, use `--keep-metadata`. To remove color profiles by converting colors to RGB with Ghostscript, use `--strip-color-profiles`. This option requires the `gs` program.
 
-If `qpdf` fails, calpdf stops and reports an error. Use `--force` to continue anyway. When `qpdf` reports warnings, calpdf prints a warning and continues.
+If `qpdf` fails, calpdf stops and reports an error. To continue anyway, use `--force`. When `qpdf` reports warnings, calpdf prints a warning and continues.
 
 ## The `export-toc` command
 
 The `export-toc` command reads the bookmarks of a PDF and exports them as a _table of contents (ToC)_. Page numbers are 1-indexed physical page positions.
 
-By default, calpdf prints JSON to standard output, which is convenient for piping to other programs. Use `--output` to write the JSON to a file, or `--format tree` for a human-readable tree instead:
+By default, calpdf prints JSON to standard output, which is convenient for piping to other programs. To write the JSON to a file, use `--output`. To print a human-readable tree instead, use `--format tree`:
 
 ```bash
 calpdf export-toc book.pdf
@@ -180,7 +180,7 @@ Before changing the file, calpdf copies the original to a file with the same nam
 
 ## Development
 
-Set up a development environment with the following command:
+To set up a development environment, run the following command:
 
 ```bash
 uv sync --dev
@@ -188,14 +188,14 @@ uv sync --dev
 
 The command installs the project and its development tools (`pytest`, `ruff`, and `mypy`).
 
-You can run the CLI from the working tree without installing it:
+To run the CLI from the working tree without installing it, use the following commands:
 
 ```bash
 uv run calpdf --version
 uv run python -m calpdf --version   # equivalent module entry point
 ```
 
-Run tests and quality checks with the following commands:
+To run tests and quality checks, use the following commands:
 
 ```bash
 uv run pytest             # full test suite
@@ -205,7 +205,7 @@ uv run ruff format        # formatting
 uv run mypy               # type checking
 ```
 
-The continuous integration (CI) workflow in `.github/workflows/ci.yml` runs the same checks:
+The _continuous integration (CI)_ workflow in `.github/workflows/ci.yml` runs the same checks:
 
 - A lint job with `ruff check`, `ruff format --check`, and `mypy`.
 - A test matrix on Python versions 3.11 through 3.13.
