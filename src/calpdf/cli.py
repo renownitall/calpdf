@@ -8,7 +8,7 @@ from calpdf.output import configure
 
 app = typer.Typer(
     name="calpdf",
-    help="A simple PDF toolkit to manage my Calibre library.",
+    help="A simple PDF toolkit to manage your Calibre library.",
     no_args_is_help=True,
 )
 

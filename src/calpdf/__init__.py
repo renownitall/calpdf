@@ -1,1 +1,1 @@
-"""calpdf - a simple PDF toolkit to manage my Calibre library."""
+"""calpdf - a simple PDF toolkit to manage your Calibre library."""

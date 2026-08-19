@@ -1,7 +1,7 @@
 [project]
 name = "calpdf"
 version = "0.1.0"
-description = "A simple PDF toolkit to manage my Calibre library"
+description = "A simple PDF toolkit to manage your Calibre library"
 requires-python = ">=3.11"
 readme = "README.md"
 license = { text = "MIT" }
