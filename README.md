@@ -2,7 +2,9 @@
 
 Hi. This is a simple PDF toolkit to run alongside Calibre.
 
-Calibre is good at organizing books, but it's the wrong tool for editing PDFs. calpdf works on the PDFs directly, so you don't need a Calibre library to use it. A tool like `qpdf` can replace a cover page, but you'd have to match it to the width of the book's pages yourself. The jobs that keep coming up are simple, like finding a cover, swapping it in, shrinking a PDF, or editing bookmarks without installing a PDF editor. calpdf keeps each one to a single command.
+Calibre is a free program for organizing your e-book library, but it's the wrong tool for editing individual PDFs. For more information about Calibre, see the [Calibre website](https://calibre-ebook.com).
+
+calpdf works on the PDFs themselves, not on a Calibre library. The jobs that keep coming up are simple, like finding a cover, swapping it in, shrinking a PDF, or editing bookmarks without installing a PDF editor. calpdf keeps each one to a single command. A tool like `qpdf` can replace a cover page, but you'd have to match it to the width of the book's pages yourself.
 
 This document is for people who are comfortable using a terminal. You'll need Python 3.11 or later and the `uv` package manager. If you don't have `uv` yet, see the [uv installation guide](https://docs.astral.sh/uv/).
 
