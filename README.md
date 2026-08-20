@@ -142,19 +142,11 @@ calpdf apply-toc book.pdf toc.json -o output.pdf
 
 The first example updates the PDF in place and keeps a backup. The second example writes the result to a new file.
 
-The command validates the file before applying it, and it reports an error for each invalid entry. A `title` must be a non-empty string, a `pageNumber` must be an integer between 1 and the number of pages, and `children` must be a list.
-
-The command leaves the PDF's page labels, such as roman numerals for the front matter, as they are. For the JSON structure and page numbering rules, see [The ToC JSON format](#the-toc-json-format).
+The command validates the file before applying it, and it reports an error for each invalid entry. It leaves the PDF's page labels, such as roman numerals for the front matter, as they are. For the JSON structure and field rules, see [The ToC JSON format](#the-toc-json-format).
 
 ## The ToC JSON format
 
-The JSON file is a list of entries, and each entry has three fields:
-
-- `title`: The bookmark text. It must be a non-empty string.
-- `pageNumber`: The physical page the bookmark points to, counting from 1. It must be between 1 and the total number of pages.
-- `children`: A list of nested entries. Use an empty list for a bookmark without children.
-
-The following sample shows the format:
+A ToC file is a list of entries, and each entry has a `title`, a `pageNumber`, and a `children` list. The following sample shows the format:
 
 ```json
 [
@@ -172,13 +164,11 @@ The following sample shows the format:
 ]
 ```
 
-Page numbers are 1-indexed physical page positions, so page 1 is the first page of the file, not the number printed on the page.
+For the field-by-field specification, run `calpdf apply-toc --help`.
 
 ## Backup behavior
 
-Commands that modify a PDF in place keep the original file. This applies to `replace-cover`, `set-cover`, `apply-toc`, and `optimize` without the `--output` option.
-
-Before changing the file, calpdf copies the original to a file with the same name plus a `.bak` suffix, such as `book.pdf.bak`. If a `.bak` file already exists, calpdf uses it as the source and does not overwrite it. To restore the original, copy the `.bak` file back over the PDF.
+Commands that modify a PDF in place (`replace-cover`, `set-cover`, `apply-toc`, and `optimize`) keep a backup of the original file with a `.bak` suffix. To restore the original, copy the `.bak` file back over the PDF. For the full behavior, run `calpdf --help`.
 
 ## Development
 

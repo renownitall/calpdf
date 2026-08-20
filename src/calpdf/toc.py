@@ -261,10 +261,7 @@ def export_toc(
         ),
     ),
 ) -> None:
-    """Export the PDF's table of contents (bookmarks) to JSON or a tree view.
-
-    Page numbers are 1-indexed physical page positions.
-    """
+    """Export the PDF's table of contents (bookmarks) to JSON or a tree view."""
     try:
         validate_input_file(input_pdf, label="Input PDF")
 
@@ -314,8 +311,7 @@ def apply_toc(
 ) -> None:
     """Apply a JSON table of contents to the PDF, replacing any existing bookmarks.
 
-    Page numbers are 1-indexed physical page positions. The PDF's page labels
-    (e.g. roman numerals for front matter) are not modified.
+    The PDF's page labels (e.g. roman numerals for front matter) are not modified.
     """
     if output_pdf is None or same_path(input_pdf, output_pdf):
         out_file, backup_file = normalize_paths(input_pdf)
