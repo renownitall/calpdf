@@ -64,8 +64,7 @@ class RemovedTargets:
 
 
 def is_text_destination(obj) -> bool:
-    class_name = obj.__class__.__name__
-    return isinstance(obj, str) or class_name in {"String", "Name"}
+    return isinstance(obj, (str, pikepdf.String, pikepdf.Name))
 
 
 def destination_name_variants(obj) -> set[str]:
