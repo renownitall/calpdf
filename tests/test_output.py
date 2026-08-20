@@ -47,9 +47,7 @@ class TestRenderTocTree:
                 {
                     "title": "Ch 2",
                     "pageNumber": 3,
-                    "children": [
-                        {"title": "Sec 2.1", "pageNumber": 4, "children": []}
-                    ],
+                    "children": [{"title": "Sec 2.1", "pageNumber": 4, "children": []}],
                 },
             ]
         )

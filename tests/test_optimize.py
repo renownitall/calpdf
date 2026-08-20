@@ -111,9 +111,7 @@ class TestOptimizeCLI:
         assert result.exit_code == 0
         assert "warnings" in result.output.lower()
 
-    def test_keep_metadata_drops_strip_flags(
-        self, sample_pdf: Path, tmp_path: Path
-    ):
+    def test_keep_metadata_drops_strip_flags(self, sample_pdf: Path, tmp_path: Path):
         out = tmp_path / "out.pdf"
         mock_result = MagicMock()
         mock_result.returncode = 0
