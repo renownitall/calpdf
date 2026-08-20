@@ -33,6 +33,10 @@ class TestOptimizeCLI:
 
             result = runner.invoke(app, ["optimize", str(sample_pdf), "-o", str(out)])
             assert result.exit_code == 0
+            assert any(
+                line.lower().startswith("success:")
+                for line in result.output.splitlines()
+            )
 
     def test_qpdf_failure_without_force(self, sample_pdf: Path, tmp_path: Path):
         out = tmp_path / "out.pdf"
@@ -53,6 +57,7 @@ class TestOptimizeCLI:
             ["optimize", str(tmp_path / "nope.pdf")],
         )
         assert result.exit_code == 1
+        assert "error:" in result.output.lower()
 
     def test_force_fails_when_qpdf_produces_no_output(
         self, sample_pdf: Path, tmp_path: Path
@@ -91,6 +96,43 @@ class TestOptimizeCLI:
             )
         assert result.exit_code == 0
         assert "warning" in result.output.lower()
+
+    def test_qpdf_exit_3_warns_but_succeeds(self, sample_pdf: Path, tmp_path: Path):
+        out = tmp_path / "out.pdf"
+        mock_result = MagicMock()
+        mock_result.returncode = 3
+        mock_result.stderr = ""
+        with (
+            patch("calpdf.optimize.shutil.which", return_value="/usr/bin/qpdf"),
+            patch("calpdf.optimize.subprocess.run", return_value=mock_result),
+        ):
+            shutil.copy2(sample_pdf, out)
+            result = runner.invoke(app, ["optimize", str(sample_pdf), "-o", str(out)])
+        assert result.exit_code == 0
+        assert "warnings" in result.output.lower()
+
+    def test_keep_metadata_drops_strip_flags(
+        self, sample_pdf: Path, tmp_path: Path
+    ):
+        out = tmp_path / "out.pdf"
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stderr = ""
+        with (
+            patch("calpdf.optimize.shutil.which", return_value="/usr/bin/qpdf"),
+            patch(
+                "calpdf.optimize.subprocess.run", return_value=mock_result
+            ) as mock_run,
+        ):
+            shutil.copy2(sample_pdf, out)
+            result = runner.invoke(
+                app,
+                ["optimize", str(sample_pdf), "-o", str(out), "--keep-metadata"],
+            )
+        assert result.exit_code == 0
+        cmd = mock_run.call_args[0][0]
+        assert "--remove-info" not in cmd
+        assert "--remove-metadata" not in cmd
 
     def test_strip_color_profiles_runs_gs_then_qpdf(
         self, sample_pdf: Path, tmp_path: Path

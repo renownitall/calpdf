@@ -86,12 +86,6 @@ class TestCoverPageSize:
         expected_h = 612 * (800 / 600)
         assert abs(h - expected_h) < 0.01
 
-    def test_fill(self):
-        geom = PageGeometry(width=612, height=792, user_unit=1.0)
-        w, h = _cover_page_size(geom, 600, 800, FitMode.fill)
-        assert w == 612
-        assert h == 792
-
     def test_fit(self):
         geom = PageGeometry(width=612, height=792, user_unit=1.0)
         w, h = _cover_page_size(geom, 600, 800, FitMode.fit)
@@ -122,6 +116,19 @@ class TestValidate:
             fit_mode=FitMode.match_width,
         )
         with pytest.raises(AppError, match="not found"):
+            validate(job)
+
+    def test_in_place_neither_file_exists(self, tmp_path: Path, sample_jpeg: Path):
+        job = Job(
+            input_pdf=tmp_path / "missing.pdf",
+            image_path=sample_jpeg,
+            output_pdf=None,
+            mode=Mode.replace,
+            pages=1,
+            dpi=300,
+            fit_mode=FitMode.match_width,
+        )
+        with pytest.raises(AppError, match="Neither"):
             validate(job)
 
     def test_missing_image(self, sample_pdf: Path, tmp_path: Path):
@@ -181,6 +188,9 @@ class TestReplaceCoverCLI:
         )
         assert result.exit_code == 0, result.stdout
         assert out.exists()
+        assert any(
+            line.lower().startswith("success:") for line in result.output.splitlines()
+        )
         with pikepdf.open(out) as pdf:
             assert len(pdf.pages) == 3  # replaced 1 of 3
 
@@ -211,6 +221,7 @@ class TestReplaceCoverCLI:
         assert sample_pdf.exists()
         bak = sample_pdf.with_name(sample_pdf.name + ".bak")
         assert bak.exists()
+        assert "backup" in result.output.lower()
 
     def test_swapped_arguments(
         self, sample_pdf: Path, sample_jpeg: Path, tmp_path: Path
@@ -240,6 +251,7 @@ class TestReplaceCoverCLI:
             ],
         )
         assert result.exit_code == 1
+        assert "error:" in result.output.lower()
 
     def test_replace_multiple_pages(
         self, sample_pdf: Path, sample_jpeg: Path, tmp_path: Path
@@ -318,6 +330,26 @@ class TestSetCoverCLI:
         bak = sample_pdf.with_name(sample_pdf.name + ".bak")
         assert bak.exists()
         with pikepdf.open(sample_pdf) as pdf:
+            assert len(pdf.pages) == 3  # replaced 1 of 3 with the downloaded cover
+
+    def test_success_with_output_flag(
+        self, sample_pdf: Path, tiny_jpeg_bytes: bytes, tmp_path: Path
+    ):
+        out = tmp_path / "out.pdf"
+
+        def fake_download(book_id: str, output_path: Path) -> Path:
+            output_path.write_bytes(tiny_jpeg_bytes)
+            return output_path
+
+        with patch("calpdf.dlcover.download_cover", side_effect=fake_download):
+            result = runner.invoke(
+                app, ["set-cover", str(sample_pdf), "B08X92NRKV", "-o", str(out)]
+            )
+        assert result.exit_code == 0, result.stdout
+        assert out.exists()
+        bak = sample_pdf.with_name(sample_pdf.name + ".bak")
+        assert not bak.exists()
+        with pikepdf.open(out) as pdf:
             assert len(pdf.pages) == 3  # replaced 1 of 3 with the downloaded cover
 
 

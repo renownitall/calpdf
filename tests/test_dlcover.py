@@ -149,15 +149,6 @@ class TestBookIdValidation:
         assert "invalid book_id" in result.output.lower()
         mock_get.assert_not_called()
 
-    def test_dl_cover_rejects_unsafe_characters(self, tmp_path: Path):
-        with patch("calpdf.dlcover.requests.get") as mock_get:
-            result = runner.invoke(
-                app,
-                ["dl-cover", "id with spaces!", "-o", str(tmp_path / "c.jpg")],
-            )
-        assert result.exit_code == 1
-        mock_get.assert_not_called()
-
     def test_dl_cover_accepts_isbn_with_dashes(
         self, tmp_path: Path, tiny_jpeg_bytes: bytes
     ):

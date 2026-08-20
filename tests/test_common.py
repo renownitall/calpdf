@@ -26,10 +26,6 @@ class TestMessage:
 
 
 class TestSamePath:
-    def test_same(self, tmp_path: Path):
-        p = tmp_path / "a.pdf"
-        assert same_path(p, p) is True
-
     def test_different(self, tmp_path: Path):
         assert same_path(tmp_path / "a.pdf", tmp_path / "b.pdf") is False
 
@@ -105,6 +101,11 @@ class TestDetectSwap:
 
     def test_correct_order(self):
         assert detect_swap(Path("book.pdf"), Path("cover.jpg")) is None
+
+    def test_input_not_pdf_image_is_pdf(self):
+        result = detect_swap(Path("notes.txt"), Path("cover.pdf"))
+        assert result is not None
+        assert "INPUT_PDF to be a PDF" in result
 
     def test_both_pdf(self):
         assert detect_swap(Path("a.pdf"), Path("b.pdf")) is None

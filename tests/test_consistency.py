@@ -5,7 +5,6 @@ import shutil
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pikepdf
 import subprocess
 import sys
 from typer.testing import CliRunner
@@ -19,15 +18,6 @@ runner = CliRunner()
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
-
-
-def _make_pdf(path: Path, pages: int = 3) -> Path:
-    pdf = pikepdf.Pdf.new()
-    for _ in range(pages):
-        pdf.add_blank_page(page_size=(612, 792))
-    pdf.save(path)
-    pdf.close()
-    return path
 
 
 def _make_toc_file(path: Path, entries: int = 2) -> Path:
@@ -46,15 +36,6 @@ def _make_toc_file(path: Path, entries: int = 2) -> Path:
 
 class TestBackupConsistency:
     """Every in-place command must create a .bak and not overwrite an existing one."""
-
-    def test_replace_cover_creates_backup(self, sample_pdf: Path, sample_jpeg: Path):
-        result = runner.invoke(
-            app, ["replace-cover", str(sample_pdf), str(sample_jpeg)]
-        )
-        assert result.exit_code == 0
-        bak = sample_pdf.with_name(sample_pdf.name + ".bak")
-        assert bak.exists()
-        assert "backup" in result.output.lower()
 
     def test_apply_toc_creates_backup(self, sample_pdf: Path, tmp_path: Path):
         toc = _make_toc_file(tmp_path / "toc.json")
@@ -131,31 +112,6 @@ class TestBackupConsistency:
 class TestErrorHandlingConsistency:
     """All commands must print 'Error: ...' to output and exit 1 on failure."""
 
-    def test_replace_cover_missing_pdf(self, sample_jpeg: Path, tmp_path: Path):
-        result = runner.invoke(
-            app,
-            [
-                "replace-cover",
-                str(tmp_path / "nope.pdf"),
-                str(sample_jpeg),
-                "-o",
-                str(tmp_path / "out.pdf"),
-            ],
-        )
-        assert result.exit_code == 1
-        assert "error:" in result.output.lower()
-
-    def test_apply_toc_missing_pdf(self, tmp_path: Path):
-        toc = _make_toc_file(tmp_path / "toc.json")
-        result = runner.invoke(app, ["apply-toc", str(tmp_path / "nope.pdf"), str(toc)])
-        assert result.exit_code == 1
-        assert "error:" in result.output.lower()
-
-    def test_optimize_missing_pdf(self, tmp_path: Path):
-        result = runner.invoke(app, ["optimize", str(tmp_path / "nope.pdf")])
-        assert result.exit_code == 1
-        assert "error:" in result.output.lower()
-
     def test_dl_cover_all_sources_fail(self, tmp_path: Path):
         mock_resp = MagicMock()
         mock_resp.status_code = 404
@@ -163,11 +119,6 @@ class TestErrorHandlingConsistency:
             result = runner.invoke(
                 app, ["dl-cover", "BADID", "-o", str(tmp_path / "c.jpg")]
             )
-        assert result.exit_code == 1
-        assert "error:" in result.output.lower()
-
-    def test_export_toc_missing_pdf(self, tmp_path: Path):
-        result = runner.invoke(app, ["export-toc", str(tmp_path / "nope.pdf")])
         assert result.exit_code == 1
         assert "error:" in result.output.lower()
 
@@ -253,51 +204,8 @@ class TestInPlaceConsistency:
 
 
 # ---------------------------------------------------------------------------
-# Success message consistency
+# Entry point
 # ---------------------------------------------------------------------------
-
-
-class TestSuccessMessageConsistency:
-    """All mutating commands must print 'Success: ...' on completion."""
-
-    def test_replace_cover_success_prefix(
-        self, sample_pdf: Path, sample_jpeg: Path, tmp_path: Path
-    ):
-        out = tmp_path / "out.pdf"
-        result = runner.invoke(
-            app,
-            ["replace-cover", str(sample_pdf), str(sample_jpeg), "-o", str(out)],
-        )
-        assert result.exit_code == 0
-        assert any(
-            line.lower().startswith("success:") for line in result.output.splitlines()
-        )
-
-    def test_apply_toc_success_prefix(self, sample_pdf: Path, tmp_path: Path):
-        toc = _make_toc_file(tmp_path / "toc.json")
-        out = tmp_path / "out.pdf"
-        result = runner.invoke(
-            app, ["apply-toc", str(sample_pdf), str(toc), "-o", str(out)]
-        )
-        assert result.exit_code == 0
-        assert any(
-            line.lower().startswith("success:") for line in result.output.splitlines()
-        )
-
-    def test_optimize_success_prefix(self, sample_pdf: Path, tmp_path: Path):
-        out = tmp_path / "out.pdf"
-        mock_result = MagicMock()
-        mock_result.returncode = 0
-        with (
-            patch("calpdf.optimize.shutil.which", return_value="/usr/bin/qpdf"),
-            patch("calpdf.optimize.subprocess.run", return_value=mock_result),
-        ):
-            shutil.copy2(sample_pdf, out)
-            result = runner.invoke(app, ["optimize", str(sample_pdf), "-o", str(out)])
-        assert result.exit_code == 0
-        assert any(
-            line.lower().startswith("success:") for line in result.output.splitlines()
-        )
 
 
 class TestEntryPoint:

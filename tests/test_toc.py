@@ -77,6 +77,29 @@ class TestExtractOutline:
         assert toc[1]["children"][0]["title"] == "Section 2.1"
         assert toc[1]["children"][0]["pageNumber"] == 4
 
+    def test_resolves_goto_action_named_dest(self, tmp_path: Path):
+        pdf_path = tmp_path / "goto.pdf"
+        pdf = pikepdf.Pdf.new()
+        for _ in range(2):
+            pdf.add_blank_page(page_size=(612, 792))
+        pdf.Root["/Dests"] = pikepdf.Dictionary(
+            {"/target": pikepdf.Array([pdf.pages[1].obj, pikepdf.Name("/Fit")])}
+        )
+        action = pikepdf.Dictionary(
+            {"/S": pikepdf.Name("/GoTo"), "/D": pikepdf.Name("/target")}
+        )
+        with pdf.open_outline() as outline:
+            outline.root.append(pikepdf.OutlineItem("Jump", action=action))
+        pdf.save(pdf_path)
+        pdf.close()
+
+        with pikepdf.open(pdf_path) as pdf:
+            page_map = {page.obj.objgen: i for i, page in enumerate(pdf.pages)}
+            with pdf.open_outline() as outline:
+                toc = extract_outline(outline.root, pdf, page_map)
+        assert toc[0]["title"] == "Jump"
+        assert toc[0]["pageNumber"] == 2
+
 
 class TestBuildOutlineItems:
     def test_builds_items(self, sample_pdf: Path):
@@ -116,6 +139,7 @@ class TestExportTocCLI:
     def test_export_missing_pdf(self, tmp_path: Path):
         result = runner.invoke(app, ["export-toc", str(tmp_path / "nope.pdf")])
         assert result.exit_code == 1
+        assert "error:" in result.output.lower()
 
     def test_export_empty_toc(self, sample_pdf: Path):
         result = runner.invoke(app, ["export-toc", str(sample_pdf)])
@@ -163,7 +187,9 @@ class TestApplyTocCLI:
 
         result = runner.invoke(app, ["apply-toc", str(sample_pdf), str(toc_file)])
         assert result.exit_code == 0
-        assert "Success" in result.stdout
+        assert any(
+            line.lower().startswith("success:") for line in result.stdout.splitlines()
+        )
 
         # Verify the ToC was applied
         with pikepdf.open(sample_pdf) as pdf:
@@ -190,6 +216,15 @@ class TestApplyTocCLI:
         toc_file.write_text("{not valid json")
         result = runner.invoke(app, ["apply-toc", str(sample_pdf), str(toc_file)])
         assert result.exit_code == 1
+
+    def test_apply_missing_pdf(self, tmp_path: Path):
+        toc_file = tmp_path / "toc.json"
+        toc_file.write_text(json.dumps([]))
+        result = runner.invoke(
+            app, ["apply-toc", str(tmp_path / "nope.pdf"), str(toc_file)]
+        )
+        assert result.exit_code == 1
+        assert "error:" in result.output.lower()
 
     def test_apply_invalid_toc_structure(self, sample_pdf: Path, tmp_path: Path):
         toc_data = [{"title": "Ch", "pageNumber": 999, "children": []}]

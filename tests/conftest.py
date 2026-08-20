@@ -22,11 +22,6 @@ def _reset_output():
 
 
 @pytest.fixture
-def tmp_dir(tmp_path: Path) -> Path:
-    return tmp_path
-
-
-@pytest.fixture
 def sample_pdf(tmp_path: Path) -> Path:
     pdf_path = tmp_path / "sample.pdf"
     pdf = pikepdf.Pdf.new()
