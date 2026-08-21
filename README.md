@@ -2,9 +2,7 @@
 
 Hi. This is a simple PDF toolkit to run alongside Calibre.
 
-Calibre is a free program for organizing your e-book library, but it's the wrong tool for editing individual PDFs. For more information about Calibre, see the [Calibre website](https://calibre-ebook.com).
-
-calpdf works on the PDFs themselves, not on a Calibre library. The jobs that keep coming up are simple, like finding a cover, swapping it in, shrinking a PDF, or editing bookmarks without installing a PDF editor. calpdf keeps each one to a single command. A tool like `qpdf` can replace a cover page, but you'd have to match it to the width of the book's pages yourself.
+Calibre organizes your e-book library, but it's the wrong tool for editing an individual PDF. calpdf handles jobs that normally need a PDF editor, like downloading a cover, swapping it in, shrinking a PDF, or rewriting the bookmarks, each as a single command.
 
 This document is for people who are comfortable using a terminal. You'll need Python 3.11 or later and the `uv` package manager. If you don't have `uv` yet, see the [uv installation guide](https://docs.astral.sh/uv/).
 
@@ -87,7 +85,7 @@ calpdf dl-cover 9780140328721 -o mycover.jpg
 
 Without `--output`, calpdf saves the image in the current directory as `BOOK_ID_cover.jpg`, where `BOOK_ID` is the identifier you passed. The identifier can only contain letters, digits, and dashes.
 
-calpdf requests the cover from several sources in order, starting with Amazon and moving on to Open Library. It uses the first valid image it receives, and it skips responses that are too small or that don't look like an image.
+calpdf requests the cover from several sources and uses the first valid image it receives.
 
 ## The `set-cover` command
 
