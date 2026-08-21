@@ -18,6 +18,10 @@ uv pip install .
 
 To set up a development environment instead, see [Development](#development).
 
+### Arch Linux
+
+If you run Arch Linux, you can install the signed `calpdf-git` package from my [Forge repository](https://github.com/renownitall/forge). For setup instructions, see the [Forge README](https://github.com/renownitall/forge#set-up-the-repository).
+
 ### External dependencies
 
 calpdf uses two programs that it does not install for you:
