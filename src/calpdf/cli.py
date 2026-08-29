@@ -3,7 +3,7 @@ from typing import Optional
 
 import typer
 
-from calpdf import dlcover, optimize, replace, toc
+from calpdf import dlcover, extract, info, optimize, replace, toc
 from calpdf.output import configure
 
 # Help text shared by every command that reads or writes a ToC JSON file.
@@ -81,5 +81,7 @@ app.command("dl-cover")(dlcover.main)
 app.command("optimize")(optimize.main)
 app.command("replace-cover")(replace.main)
 app.command("set-cover")(replace.set_cover)
+app.command("extract-cover")(extract.main)
+app.command("info")(info.main)
 app.command("export-toc", epilog=TOC_JSON_FORMAT)(toc.export_toc)
 app.command("apply-toc", epilog=TOC_JSON_FORMAT)(toc.apply_toc)
