@@ -100,6 +100,23 @@ The first example replaces the first page with the downloaded cover. The second 
 
 The command accepts the same options as `replace-cover`, except for the image argument. For more information about these options, see [The `replace-cover` command](#the-replace-cover-command).
 
+## The `extract-cover` command
+
+The `extract-cover` command extracts the cover image from a PDF page and saves it as a separate file. Use it to pull a cover out of a PDF so you can reuse it in Calibre or another tool.
+
+```bash
+# Save the cover from the first page as book_cover.jpg
+calpdf extract-cover book.pdf
+
+# Save the cover to a specific file
+calpdf extract-cover book.pdf -o cover.jpg
+
+# Extract the image from the second page without re-encoding
+calpdf extract-cover book.pdf --page 2 --raw -o cover.jpg
+```
+
+Without `--output`, calpdf saves the image in the current directory as `BOOK_STEM_cover.jpg`, where `BOOK_STEM` is the PDF file name without its extension. The command picks the largest image on the selected page, so it skips small icons and returns the image that most likely is the cover. To write the original bytes without re-encoding, use `--raw`.
+
 ## The `optimize` command
 
 The `optimize` command makes a PDF smaller. It uses `qpdf` to linearize the file so a viewer can load it faster, to compress objects and images, and to remove metadata such as the title and author.
@@ -116,6 +133,23 @@ calpdf optimize book.pdf -o optimized.pdf
 The first example updates the PDF in place and keeps a backup. To keep the metadata, use `--keep-metadata`. To remove color profiles by converting colors to RGB with Ghostscript, use `--strip-color-profiles`. This option requires the `gs` program.
 
 If `qpdf` fails, calpdf stops and reports an error. To continue anyway, use `--force`. When `qpdf` reports warnings, calpdf prints a warning and continues.
+
+## The `info` command
+
+The `info` command shows information about a PDF, such as the number of pages, the PDF version, the file size, the bookmark count, and the size of each page.
+
+```bash
+# Show a human-readable summary
+calpdf info book.pdf
+
+# Write machine-readable JSON to standard output
+calpdf info book.pdf --format json
+
+# Write JSON to a file
+calpdf info book.pdf --format json -o info.json
+```
+
+By default, calpdf prints a summary to the terminal. To produce machine-readable output that you can pipe to another program, use `--format json`. With `--format json`, you can write the output to a file with `--output`. With `--format text`, the `--output` option has no effect and calpdf prints a warning if you pass it anyway.
 
 ## The `export-toc` command
 
