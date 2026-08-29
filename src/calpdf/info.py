@@ -19,6 +19,9 @@ class InfoFormat(str, Enum):
     json = "json"
 
 
+MAX_PAGE_DETAILS = 5
+
+
 def _count_outline(pdf: pikepdf.Pdf) -> tuple[int, int]:
     """Return (top_level, total) bookmark counts for *pdf*."""
     try:
@@ -52,10 +55,18 @@ def collect_info(input_pdf: Path) -> dict[str, Any]:
 
         pages_detail: list[dict[str, Any]] = []
         for idx, page in enumerate(pdf.pages, start=1):
-            box = page.MediaBox
+            # Use inheritable page boxes so CropBox-only PDFs report correctly.
+            # Import locally to avoid circular import with replace.
+            from calpdf.replace import _get_inheritable_page_value as _get_box
+
+            crop = _get_box(page.obj, "/CropBox")
+            media = _get_box(page.obj, "/MediaBox")
+            box = crop if crop is not None else media
+            if box is None:
+                box = page.MediaBox
             width = float(box[2]) - float(box[0])
             height = float(box[3]) - float(box[1])
-            rotate = int(page.obj.get("/Rotate", 0)) % 360
+            rotate = int(_get_box(page.obj, "/Rotate") or 0) % 360
             if rotate in (90, 270):
                 width, height = height, width
             pages_detail.append(
@@ -99,13 +110,13 @@ def _render_text(info: dict[str, Any]) -> str:
         f"Bookmarks: {outline['total']} total ({outline['topLevel']} top-level)"
     )
     lines.append("Page sizes:")
-    for entry in info["pagesDetail"][:5]:
+    for entry in info["pagesDetail"][:MAX_PAGE_DETAILS]:
         lines.append(
             f"  Page {entry['number']}: {entry['width']:.1f}"
             f"x{entry['height']:.1f} pt, rotate {entry['rotate']}"
         )
-    if info["pages"] > 5:
-        lines.append(f"  ... and {info['pages'] - 5} more pages")
+    if info["pages"] > MAX_PAGE_DETAILS:
+        lines.append(f"  ... and {info['pages'] - MAX_PAGE_DETAILS} more pages")
     return "\n".join(lines)
 
 

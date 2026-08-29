@@ -29,7 +29,7 @@ _quiet: bool = False
 
 
 # ---------------------------------------------------------------------------
-# Global configuration; called once from the CLI callback
+# Global configuration. Called once from the CLI callback.
 # ---------------------------------------------------------------------------
 
 
@@ -43,9 +43,8 @@ def configure(*, quiet: bool = False, no_color: bool = False) -> None:
 
     _quiet = quiet
 
-    if no_color:
-        _out = Console(theme=_theme, highlight=False, no_color=True)
-        _err = Console(theme=_theme, highlight=False, stderr=True, no_color=True)
+    _out = Console(theme=_theme, highlight=False, no_color=no_color)
+    _err = Console(theme=_theme, highlight=False, stderr=True, no_color=no_color)
 
 
 # ---------------------------------------------------------------------------
@@ -82,7 +81,7 @@ def error(text: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Structured output; intended for data that may be piped
+# Structured output. Intended for data that may be piped.
 # ---------------------------------------------------------------------------
 
 

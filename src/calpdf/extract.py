@@ -81,7 +81,12 @@ def extract_cover(
             candidate = Path(f"{input_pdf.stem}_cover.jpg")
             try:
                 filters = raw_image.get("/Filter")
-                if filters is not None and "/FlateDecode" in str(filters):
+                is_flate = False
+                if isinstance(filters, pikepdf.Array):
+                    is_flate = pikepdf.Name("/FlateDecode") in filters
+                elif filters is not None:
+                    is_flate = filters == pikepdf.Name("/FlateDecode")
+                if is_flate:
                     candidate = Path(f"{input_pdf.stem}_cover.png")
             except Exception:
                 pass
@@ -93,7 +98,7 @@ def extract_cover(
             tmp_prefix = str(target.parent / f".calpdf_tmp_{target.stem}")
             written = pdf_image.extract_to(fileprefix=tmp_prefix)
             written_path = Path(written)
-            if written_path.resolve() != target.resolve():
+            if written_path.resolve(strict=False) != target.resolve(strict=False):
                 written_path.replace(target)
             return target
 

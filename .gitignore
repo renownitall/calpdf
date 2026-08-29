@@ -35,5 +35,8 @@ htmlcov/
 .mypy_cache/
 .ruff_cache/
 
+# Samples (large PDFs, not tracked)
+samples/
+
 # Documentation
 style-guide.md

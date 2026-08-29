@@ -18,7 +18,7 @@ def message(exc: BaseException) -> str:
 
 
 def same_path(a: Path, b: Path) -> bool:
-    return a.expanduser().resolve() == b.expanduser().resolve()
+    return a.expanduser().resolve(strict=False) == b.expanduser().resolve(strict=False)
 
 
 def normalize_paths(input_path: Path) -> tuple[Path, Path]:
@@ -28,9 +28,9 @@ def normalize_paths(input_path: Path) -> tuple[Path, Path]:
     output is derived by stripping the suffix.  Otherwise *input_path* is the
     output and the backup is ``<name>.bak``.
     """
-    if input_path.name.endswith(".bak"):
+    if input_path.suffix == ".bak":
         backup_file = input_path
-        output_file = input_path.with_name(input_path.name[:-4])
+        output_file = input_path.with_suffix("")
     else:
         output_file = input_path
         backup_file = input_path.with_name(input_path.name + ".bak")
@@ -59,6 +59,17 @@ def ensure_backup(output_file: Path, backup_file: Path) -> Path:
 def validate_input_file(path: Path, label: str = "File") -> None:
     if not path.is_file():
         raise AppError(f"{label} '{path}' not found.")
+
+
+def validate_in_place_input(path: Path) -> None:
+    """Validate that at least one of the in-place pair exists.
+
+    For in-place commands the PDF may be at *path* or at its ``.bak``
+    sibling. Raise :class:`AppError` only when neither is present.
+    """
+    output_file, backup_file = normalize_paths(path)
+    if not output_file.is_file() and not backup_file.is_file():
+        raise AppError(f"Neither '{output_file}' nor '{backup_file}' found.")
 
 
 def validate_output_dir(path: Path) -> None:

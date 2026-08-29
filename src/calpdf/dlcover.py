@@ -17,7 +17,7 @@ URL_CHAIN: list[tuple[str, str]] = [
 
 MIN_SIZE = 1024  # bytes; anything smaller is likely a placeholder
 
-# JPEG files start with FF D8 FF; PNG files start with 89 50 4E 47
+# JPEG files start with FF D8 FF. PNG files start with 89 50 4E 47.
 _IMAGE_SIGNATURES: list[tuple[str, bytes]] = [
     ("JPEG", b"\xff\xd8\xff"),
     ("PNG", b"\x89PNG"),
@@ -37,17 +37,17 @@ def validate_book_id(book_id: str) -> None:
         )
 
 
-def _looks_like_image(data: bytes) -> bool:
-    """Return True if *data* starts with a known image file signature."""
-    return any(data.startswith(sig) for _, sig in _IMAGE_SIGNATURES)
-
-
 def _detected_format(data: bytes) -> Optional[str]:
     """Return the format name if *data* starts with a known signature."""
     for name, sig in _IMAGE_SIGNATURES:
         if data.startswith(sig):
             return name
     return None
+
+
+def _looks_like_image(data: bytes) -> bool:
+    """Return True if *data* starts with a known image file signature."""
+    return _detected_format(data) is not None
 
 
 def download_cover(book_id: str, output_path: Path) -> Path:

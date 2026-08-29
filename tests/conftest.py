@@ -84,7 +84,7 @@ def sample_png(tmp_path: Path) -> Path:
 @pytest.fixture
 def tiny_jpeg_bytes() -> bytes:
     """Return raw bytes for a JPEG image that exceeds MIN_SIZE (1024 bytes)."""
-    width, height = 64, 64
+    width, height = 128, 128
     random_pixels = os.urandom(width * height * 3)
     img = Image.frombytes("RGB", (width, height), random_pixels)
     buf = io.BytesIO()
