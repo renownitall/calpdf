@@ -22,10 +22,9 @@ If you run Arch Linux, you can install the signed `calpdf-git` package from my [
 
 ### External dependencies
 
-calpdf uses two programs that it does not install for you:
+calpdf uses one program that it does not install for you:
 
 - `qpdf`: The `optimize` command requires it. You must install it before you can optimize a PDF.
-- Ghostscript (`gs`): The `--strip-color-profiles` option uses it. You only need it when you use that option.
 
 ## Global options
 
@@ -130,7 +129,7 @@ calpdf optimize book.pdf --strip-color-profiles
 calpdf optimize book.pdf -o optimized.pdf
 ```
 
-The first example updates the PDF in place and keeps a backup. To keep the metadata, use `--keep-metadata`. To remove color profiles by converting colors to RGB with Ghostscript, use `--strip-color-profiles`. This option requires the `gs` program.
+The first example updates the PDF in place and keeps a backup. To keep the metadata, use `--keep-metadata`. To remove ICC color profiles (document OutputIntents and image ICCBased spaces), use `--strip-color-profiles`.
 
 If `qpdf` fails, calpdf stops and reports an error. To continue anyway, use `--force`. When `qpdf` reports warnings, calpdf prints a warning and continues.
 

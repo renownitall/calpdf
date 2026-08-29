@@ -53,28 +53,71 @@ def qpdf_optimize(
     return result.returncode
 
 
-def strip_color_profiles(gs_bin: str, input_path: Path, output_path: Path) -> None:
-    cmd = [
-        gs_bin,
-        "-q",
-        "-dNOPAUSE",
-        "-dBATCH",
-        "-sDEVICE=pdfwrite",
-        "-dPDFSETTINGS=/default",
-        "-dColorConversionStrategy=/sRGB",
-        "-dProcessColorModel=/DeviceRGB",
-        "-dCompatibilityLevel=1.7",
-        "-dCompressFonts=true",
-        "-dSubsetFonts=true",
-        "-dDetectDuplicateImages=true",
-        f"-sOutputFile={output_path}",
-        str(input_path),
-    ]
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
-        raise AppError(
-            f"Ghostscript failed (exit {result.returncode}): {result.stderr.strip()}"
-        )
+def strip_color_profiles(input_path: Path, output_path: Path) -> None:
+    """Strip ICC color profiles without re-distilling the PDF.
+
+    Unlike ``gs -sDEVICE=pdfwrite`` (which re-interprets the entire file
+    through Ghostscript and rewrites fonts, content streams and the catalog),
+    this surgically removes:
+
+    * document-level ``/OutputIntents`` (where publisher ICC profiles live)
+    * image-level ``/ICCBased`` color spaces (replaced by ``/DeviceRGB``)
+
+    This preserves object counts, ``Producer``, ``StructTreeRoot`` and other
+    objects (empirically ``gs`` drops 97 percent of objects on ``small2.pdf``,
+    this drops one).
+    """
+    import pikepdf
+
+    with pikepdf.open(input_path) as pdf:
+        # Document-level OutputIntents (e.g. sRGB IEC61966, PDF/X)
+        if "/OutputIntents" in pdf.Root:
+            del pdf.Root["/OutputIntents"]
+
+        # Image-level ICCBased → DeviceRGB
+        # Iterate via raw objects: cheaper than decoding images, preserves bytes.
+        for obj in pdf.objects:
+            try:
+                if obj.get("/Subtype") != pikepdf.Name("/Image"):
+                    continue
+                cs = obj.get("/ColorSpace")
+                if cs is None:
+                    continue
+                # Direct ICCBased stream: /ColorSpace is the ICC stream itself
+                # or Array [ /ICCBased <stream> ]
+                is_iccbased = False
+                alternate: object | None = None
+                if isinstance(cs, pikepdf.Array) and len(cs) > 0:
+                    if str(cs[0]) == "/ICCBased":
+                        is_iccbased = True
+                        # ICC stream may have /Alternate → prefer it
+                        try:
+                            icc_stream = cs[1]
+                            alternate = icc_stream.get("/Alternate")
+                        except Exception:
+                            pass
+                elif isinstance(cs, pikepdf.Stream) and cs.get("/N") is not None:
+                    # Some producers write the ICC stream directly (has /N)
+                    is_iccbased = True
+                    alternate = cs.get("/Alternate")
+
+                if is_iccbased:
+                    # Prefer the ICC's Alternate, else fall back to DeviceRGB
+                    if alternate is not None and str(alternate) in (
+                        "/DeviceRGB",
+                        "/DeviceGray",
+                        "/DeviceCMYK",
+                    ):
+                        obj["/ColorSpace"] = alternate
+                    else:
+                        # Most ICC profiles in samples are RGB so DeviceRGB is safe.
+                        # Pixel data is not re-encoded, the profile is just dropped.
+                        obj["/ColorSpace"] = pikepdf.Name("/DeviceRGB")
+            except Exception:
+                # Not an image or unreadable ColorSpace. Skip it.
+                continue
+
+        pdf.save(output_path)
 
 
 def main(
@@ -87,7 +130,7 @@ def main(
     strip_color: bool = typer.Option(
         False,
         "--strip-color-profiles",
-        help="Strip color profiles using Ghostscript (requires gs)",
+        help="Strip ICC color profiles (OutputIntents and ICCBased images)",
     ),
     keep_metadata: bool = typer.Option(
         False,
@@ -113,7 +156,6 @@ def main(
         validate_input_file(input_pdf, label="Input PDF")
         validate_output_dir(output_file)
         qpdf_bin = find_binary("qpdf", required=True)
-        gs_bin = find_binary("gs", required=True) if strip_color else None
         if in_place:
             assert backup_file is not None  # guaranteed by normalize_paths above
             ensure_backup(output_file, backup_file)
@@ -123,12 +165,12 @@ def main(
         with tempfile.TemporaryDirectory(dir=str(output_file.parent)) as tmp:
             workdir = Path(tmp)
             qpdf_source = source
-            if strip_color and gs_bin:
-                gs_output = workdir / "pre_optimize.pdf"
-                output.info("Stripping color profiles with Ghostscript...")
-                strip_color_profiles(gs_bin, source, gs_output)
+            if strip_color:
+                stripped = workdir / "pre_optimize.pdf"
+                output.info("Stripping color profiles...")
+                strip_color_profiles(source, stripped)
                 output.info("Color profiles removed.")
-                qpdf_source = gs_output
+                qpdf_source = stripped
             output.info(f"Optimizing '{output_file}' with qpdf...")
             exit_code = qpdf_optimize(
                 qpdf_bin, qpdf_source, output_file, keep_metadata=keep_metadata

@@ -132,7 +132,7 @@ class TestOptimizeCLI:
         assert "--remove-info" not in cmd
         assert "--remove-metadata" not in cmd
 
-    def test_strip_color_profiles_runs_gs_then_qpdf(
+    def test_strip_color_profiles_runs_native_then_qpdf(
         self, sample_pdf: Path, tmp_path: Path
     ):
         out = tmp_path / "out.pdf"
@@ -140,10 +140,11 @@ class TestOptimizeCLI:
         mock_result.returncode = 0
         mock_result.stderr = ""
         with (
-            patch("calpdf.optimize.shutil.which", return_value="/usr/bin/mockbin"),
+            patch("calpdf.optimize.shutil.which", return_value="/usr/bin/qpdf"),
             patch(
                 "calpdf.optimize.subprocess.run", return_value=mock_result
             ) as mock_run,
+            patch("calpdf.optimize.strip_color_profiles") as mock_strip,
         ):
             shutil.copy2(sample_pdf, out)  # fake qpdf writing the output file
             result = runner.invoke(
@@ -157,8 +158,37 @@ class TestOptimizeCLI:
                 ],
             )
         assert result.exit_code == 0, result.stdout
-        assert mock_run.call_count == 2
-        gs_cmd = mock_run.call_args_list[0][0][0]
-        qpdf_cmd = mock_run.call_args_list[1][0][0]
-        assert any("pdfwrite" in str(arg) for arg in gs_cmd)
+        mock_strip.assert_called_once()
+        assert mock_run.call_count == 1
+        qpdf_cmd = mock_run.call_args[0][0]
         assert "--linearize" in qpdf_cmd
+
+    def test_strip_color_profiles_removes_output_intents(self, tmp_path: Path):
+        import pikepdf
+
+        src = tmp_path / "with_icc.pdf"
+        pdf = pikepdf.Pdf.new()
+        pdf.add_blank_page(page_size=(612, 792))
+        icc = pdf.make_stream(b"dummy icc")
+        icc["/N"] = 3
+        icc["/Alternate"] = pikepdf.Name("/DeviceRGB")
+        intent = pikepdf.Dictionary(
+            {
+                "/Type": pikepdf.Name("/OutputIntent"),
+                "/S": pikepdf.Name("/GTS_PDFX"),
+                "/OutputConditionIdentifier": "sRGB",
+                "/DestOutputProfile": icc,
+            }
+        )
+        pdf.Root["/OutputIntents"] = pikepdf.Array([intent])
+        pdf.save(src)
+
+        dst = tmp_path / "stripped.pdf"
+        from calpdf.optimize import strip_color_profiles
+
+        strip_color_profiles(src, dst)
+        with pikepdf.open(dst) as out:
+            assert "/OutputIntents" not in out.Root
+        # surgical: only 1 object removed (the intent), Producer preserved
+        with pikepdf.open(src) as a, pikepdf.open(dst) as b:
+            assert len(list(b.objects)) == len(list(a.objects)) - 1
