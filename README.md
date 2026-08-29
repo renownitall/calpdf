@@ -226,12 +226,13 @@ uv run python -m calpdf --version   # equivalent module entry point
 To run tests and quality checks, use the following commands:
 
 ```bash
-uv run pytest             # full test suite
-uv run ruff check         # lint
-uv run ruff check --fix   # lint with autofixes
-uv run ruff format        # formatting
-uv run mypy               # type checking
+make check   # lint, type check, format check, and test
+make test    # run tests only
+make lint    # lint without modifying files
+make format  # format Python and Markdown
 ```
+
+`make check` runs `ruff`, `mypy`, `pytest`, and `prettier --check` for `README.md`. You can also run the tools directly with `uv run`.
 
 The _continuous integration (CI)_ workflow in `.github/workflows/ci.yml` runs the same checks:
 
