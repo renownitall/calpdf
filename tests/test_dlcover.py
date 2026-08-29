@@ -28,12 +28,7 @@ def _response(status_code: int = 200, content: bytes = b"") -> MagicMock:
 
 
 def test_command_names_are_unique() -> None:
-    """Each CLI command must be registered exactly once.
-
-    A stale copy of the ``optimize`` command previously lived in this
-    file and re-registered itself on the shared app at import time,
-    shadowing the real command during test runs.
-    """
+    """Each CLI command is registered exactly once."""
     names = [command.name for command in app.registered_commands]
     duplicates = sorted({name for name in names if names.count(name) > 1})
     assert not duplicates, f"duplicate command registrations: {duplicates}"

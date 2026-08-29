@@ -80,11 +80,7 @@ def validate(job: Job) -> None:
     if job.dpi < 72 or job.dpi > 1200:
         raise AppError("--dpi must be between 72 and 1200.")
 
-    target = job.target_pdf
-    if target is None:
-        raise AppError("No output target resolved.")
-
-    validate_output_dir(target)
+    validate_output_dir(job.target_pdf)
 
 
 def _get_inheritable_page_value(page_obj, key: str):

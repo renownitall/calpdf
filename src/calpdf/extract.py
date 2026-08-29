@@ -7,6 +7,7 @@ from typing import Any, Optional
 
 import pikepdf
 import typer
+from PIL import Image
 from pikepdf import PdfImage
 
 from calpdf import output
@@ -20,7 +21,7 @@ def _select_largest_image(page: Any) -> tuple[str, Any]:
     single cover image, so choosing the largest image avoids small icons or
     inline graphics and returns the image that most likely is the cover.
     """
-    images = page.images
+    images = page.get_images() if hasattr(page, "get_images") else page.images
     if not images:
         raise AppError("No images found on the selected page.")
 
@@ -98,17 +99,13 @@ def extract_cover(
 
         pdf_image = PdfImage(raw_image)
         pil_image = pdf_image.as_pil_image()
-        if target.suffix.lower() in {".jpg", ".jpeg"} and pil_image.mode in (
-            "RGBA",
-            "LA",
-            "P",
-        ):
-            background = pil_image.convert("RGBA")
-            if pil_image.mode == "RGB":
-                rgb = pil_image.convert("RGB")
+        if target.suffix.lower() in {".jpg", ".jpeg"} and pil_image.mode != "RGB":
+            if pil_image.mode in ("RGBA", "LA"):
+                background = Image.new("RGB", pil_image.size, (255, 255, 255))
+                background.paste(pil_image, mask=pil_image.getchannel("A"))
+                pil_image = background
             else:
-                rgb = background.convert("RGB")
-            pil_image = rgb
+                pil_image = pil_image.convert("RGB")
         pil_image.save(target)
         return target
 
