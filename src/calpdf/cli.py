@@ -68,7 +68,14 @@ def main(
         raise typer.Exit()
 
 
-# Commands are registered here. Modules have no import side effects.
+# ---------------------------------------------------------------------------
+# Command registration
+#
+# cli.py is the only place commands are attached to the app. Command modules
+# merely define functions, so importing them has no side effects, and the
+# entire command surface is visible at a glance. Command help text comes from
+# each function's docstring.
+# ---------------------------------------------------------------------------
 
 app.command("dl-cover")(dlcover.main)
 app.command("optimize")(optimize.main)

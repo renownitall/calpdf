@@ -57,15 +57,15 @@ def strip_color_profiles(input_path: Path, output_path: Path) -> None:
     """Strip ICC color profiles without re-distilling the PDF.
 
     Unlike ``gs -sDEVICE=pdfwrite`` (which re-interprets the entire file
-    through Ghostscript and rewrites fonts, content streams and the catalog),
+    through Ghostscript, rewriting fonts, content streams, and the catalog),
     this surgically removes:
 
     * document-level ``/OutputIntents`` (where publisher ICC profiles live)
     * image-level ``/ICCBased`` color spaces (replaced by ``/DeviceRGB``)
 
-    This preserves object counts, ``Producer``, ``StructTreeRoot`` and other
-    objects (empirically ``gs`` drops 97 percent of objects on ``small2.pdf``,
-    this drops one).
+    This preserves object counts, ``Producer``, ``StructTreeRoot``, and other
+    objects. Empirically, ``gs`` drops 97% of objects on ``small2.pdf``, and
+    this drops 1.
     """
     import pikepdf
 
@@ -110,11 +110,10 @@ def strip_color_profiles(input_path: Path, output_path: Path) -> None:
                     ):
                         obj["/ColorSpace"] = alternate
                     else:
-                        # Most ICC profiles in samples are RGB so DeviceRGB is safe.
-                        # Pixel data is not re-encoded, the profile is just dropped.
+                        # Most ICC profiles in samples are RGB, so DeviceRGB is safe.
+                        # We don't re-encode pixel data. We drop only the profile.
                         obj["/ColorSpace"] = pikepdf.Name("/DeviceRGB")
             except Exception:
-                # Not an image or unreadable ColorSpace. Skip it.
                 continue
 
         pdf.save(output_path)
