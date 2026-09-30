@@ -1,0 +1,70 @@
+site_name: calpdf
+site_description: A simple PDF toolkit to run alongside Calibre
+site_url: https://renownitall.github.io/calpdf/
+repo_url: https://github.com/renownitall/calpdf
+repo_name: renownitall/calpdf
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - content.code.copy
+    - content.action.edit
+    - search.suggest
+    - search.highlight
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Global options: global-options.md
+  - Commands:
+      - replace-cover: commands/replace-cover.md
+      - dl-cover: commands/dl-cover.md
+      - set-cover: commands/set-cover.md
+      - extract-cover: commands/extract-cover.md
+      - optimize: commands/optimize.md
+      - info: commands/info.md
+      - export-toc: commands/export-toc.md
+      - apply-toc: commands/apply-toc.md
+  - Reference:
+      - The ToC JSON format: reference/toc-json-format.md
+      - Backup behavior: reference/backup-behavior.md
+  - Development: development.md

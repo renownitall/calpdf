@@ -33,7 +33,7 @@ packages = ["src/calpdf"]
 testpaths = ["tests"]
 
 [dependency-groups]
-dev = ["pytest", "ruff", "mypy"]
+dev = ["pytest", "ruff", "mypy", "mkdocs", "mkdocs-material"]
 
 # ---------------------------------------------------------------------------
 # Tooling
