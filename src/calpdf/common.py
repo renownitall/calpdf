@@ -61,17 +61,6 @@ def validate_input_file(path: Path, label: str = "File") -> None:
         raise AppError(f"{label} '{path}' not found.")
 
 
-def validate_in_place_input(path: Path) -> None:
-    """Validate that at least one of the in-place pair exists.
-
-    For in-place commands the PDF may be at *path* or at its ``.bak``
-    sibling. Raise :class:`AppError` only when neither is present.
-    """
-    output_file, backup_file = normalize_paths(path)
-    if not output_file.is_file() and not backup_file.is_file():
-        raise AppError(f"Neither '{output_file}' nor '{backup_file}' found.")
-
-
 def validate_output_dir(path: Path) -> None:
     if not path.parent.exists():
         raise AppError(f"Directory '{path.parent}' does not exist.")

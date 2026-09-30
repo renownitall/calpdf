@@ -16,7 +16,6 @@ from calpdf.common import (
     message,
     normalize_paths,
     same_path,
-    validate_in_place_input,
     validate_input_file,
     validate_output_dir,
 )
@@ -65,10 +64,13 @@ class PageGeometry:
 
 
 def validate(job: Job) -> None:
-    if job.in_place:
-        validate_in_place_input(job.input_pdf)
-    elif not job.input_pdf.is_file():
-        raise AppError(f"File '{job.input_pdf}' not found.")
+    if not job.input_pdf.is_file():
+        if job.in_place:
+            output_file, backup_file = normalize_paths(job.input_pdf)
+            if not backup_file.is_file() and not output_file.is_file():
+                raise AppError(f"Neither '{output_file}' nor '{backup_file}' found.")
+        else:
+            raise AppError(f"File '{job.input_pdf}' not found.")
 
     validate_input_file(job.image_path, label="Image file")
 
@@ -521,7 +523,9 @@ def set_cover(
     try:
         validate_book_id(book_id)
         if output_pdf is None or same_path(input_pdf, output_pdf):
-            validate_in_place_input(input_pdf)
+            output_file, backup_file = normalize_paths(input_pdf)
+            if not output_file.is_file() and not backup_file.is_file():
+                raise AppError(f"Neither '{output_file}' nor '{backup_file}' found.")
         else:
             validate_input_file(input_pdf, label="Input PDF")
             validate_output_dir(output_pdf)
