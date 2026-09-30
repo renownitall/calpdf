@@ -17,4 +17,4 @@ For more information about backups, see [Backup behavior](../reference/backup-be
 
 If `qpdf` fails, calpdf stops and reports an error. To continue anyway, use `--force`. When `qpdf` reports warnings, calpdf prints a warning and continues.
 
-The `optimize` command requires `qpdf`, which calpdf does not install for you. For more information, see [External dependencies](../installation.md#external-dependencies).
+The `optimize` command requires `qpdf`. For more information, see [External dependencies](../installation.md#external-dependencies).

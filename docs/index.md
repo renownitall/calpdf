@@ -4,24 +4,7 @@ Hi. This is a simple PDF toolkit to run alongside Calibre.
 
 Calibre organizes your e-book library, but it's the wrong tool for editing an individual PDF. calpdf handles jobs that normally need a PDF editor, like downloading a cover, swapping it in, shrinking a PDF, or rewriting the bookmarks, each as a single command.
 
-This documentation is for people who are comfortable using a terminal. You'll need Python 3.11 or later and the `uv` package manager. If you don't have `uv` yet, see the [uv installation guide](https://docs.astral.sh/uv/).
-
-## Get started
-
-Install calpdf by following [Installation](installation.md), then run `calpdf` without arguments to see the list of commands. To view a command's options, run `calpdf COMMAND --help`.
-
-The following examples show what calpdf can do:
-
-```bash
-# Download a cover and swap it into a PDF in one step
-calpdf set-cover book.pdf B08X92NRKV
-
-# Make a PDF smaller
-calpdf optimize book.pdf
-
-# Read the bookmarks of a PDF as JSON
-calpdf export-toc book.pdf
-```
+This documentation is for people who are comfortable using a terminal. Start with [Installation](installation.md).
 
 ## Commands
 
