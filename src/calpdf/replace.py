@@ -155,26 +155,22 @@ def target_page_geometry(pdf: pikepdf.Pdf, mode: Mode, pages: int) -> PageGeomet
     return PageGeometry(width=width, height=height, user_unit=user_unit)
 
 
-def _resized(img: Image.Image, scale: float) -> Image.Image:
-    img_w, img_h = img.size
-    new_w, new_h = int(round(img_w * scale)), int(round(img_h * scale))
-    return img.resize((new_w, new_h), Image.Resampling.LANCZOS)
-
-
 def _crop_to_fill(img: Image.Image, target_w: int, target_h: int) -> Image.Image:
     img_w, img_h = img.size
     scale = max(target_w / img_w, target_h / img_h)
-    resized = _resized(img, scale)
-    left, top = (resized.width - target_w) // 2, (resized.height - target_h) // 2
+    new_w, new_h = int(round(img_w * scale)), int(round(img_h * scale))
+    resized = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+    left, top = (new_w - target_w) // 2, (new_h - target_h) // 2
     return resized.crop((left, top, left + target_w, top + target_h))
 
 
 def _fit_within(img: Image.Image, target_w: int, target_h: int) -> Image.Image:
     img_w, img_h = img.size
     scale = min(target_w / img_w, target_h / img_h)
-    resized = _resized(img, scale)
+    new_w, new_h = int(round(img_w * scale)), int(round(img_h * scale))
+    resized = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
     result = Image.new("RGB", (target_w, target_h), (255, 255, 255))
-    left, top = (target_w - resized.width) // 2, (target_h - resized.height) // 2
+    left, top = (target_w - new_w) // 2, (target_h - new_h) // 2
     result.paste(resized, (left, top))
     return result
 
