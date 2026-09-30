@@ -1,6 +1,6 @@
 # The `extract-cover` command
 
-The `extract-cover` command extracts the cover image from a PDF page and saves it as a separate file. Use it to pull a cover out of a PDF so you can reuse it in Calibre or another tool.
+The `extract-cover` command extracts the cover image from a PDF page and saves it as a separate file. Use it to pull a cover out of a PDF so you can reuse the image in Calibre or another tool.
 
 ```bash
 # Save the cover from the first page as book_cover.jpg

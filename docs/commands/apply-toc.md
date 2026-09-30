@@ -11,4 +11,4 @@ The first example updates the PDF in place and keeps a backup. The second exampl
 
 The command validates the file before applying it, and it reports an error for each invalid entry. It leaves the PDF's page labels, such as roman numerals for the front matter, as they are. For the JSON structure and field rules, see [The ToC JSON format](../reference/toc-json-format.md).
 
-To read the bookmarks of a PDF as JSON first, use [`export-toc`](export-toc.md).
+To export the bookmarks of a PDF as JSON first, use [`export-toc`](export-toc.md).

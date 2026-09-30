@@ -24,7 +24,7 @@ make lint    # lint without modifying files
 make format  # format Python and Markdown
 ```
 
-`make check` runs `ruff`, `mypy`, `pytest`, `prettier --check` for `README.md` and the files in `docs/`, and a strict MkDocs build. You can also run the tools directly with `uv run`.
+`make check` runs `ruff`, `mypy`, and `pytest`. It checks `README.md` and `docs/` with `prettier --check`, and it builds the documentation site in strict mode. You can also run the tools directly with `uv run`.
 
 ## Documentation
 

@@ -10,7 +10,7 @@ This documentation is for people who are comfortable using a terminal. You'll ne
 
 Install calpdf by following [Installation](installation.md), then run `calpdf` without arguments to see the list of commands. To view a command's options, run `calpdf COMMAND --help`.
 
-The following examples show the shape of the tool:
+The following examples show what calpdf can do:
 
 ```bash
 # Download a cover and swap it into a PDF in one step
@@ -33,7 +33,7 @@ Each command has its own page with its options and examples:
 - The [`extract-cover`](commands/extract-cover.md) command extracts the cover image from a PDF page and saves it as a separate file.
 - The [`optimize`](commands/optimize.md) command makes a PDF smaller with `qpdf`.
 - The [`info`](commands/info.md) command shows information about a PDF, such as its page count and file size.
-- The [`export-toc`](commands/export-toc.md) command exports the bookmarks of a PDF as a _table of contents (ToC)_.
+- The [`export-toc`](commands/export-toc.md) command exports the bookmarks, or _table of contents (ToC)_, of a PDF.
 - The [`apply-toc`](commands/apply-toc.md) command replaces the bookmarks of a PDF from a JSON file.
 
 ## Options and reference

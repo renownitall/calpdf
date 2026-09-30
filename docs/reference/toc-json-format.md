@@ -18,6 +18,6 @@ A ToC file is a list of entries, and each entry has a `title`, a `pageNumber`, a
 ]
 ```
 
-For the field-by-field specification, run `calpdf apply-toc --help`.
+[`export-toc`](../commands/export-toc.md) produces files in this format, and [`apply-toc`](../commands/apply-toc.md) reads them to replace a PDF's bookmarks.
 
-Use this format with [`export-toc`](../commands/export-toc.md), which writes it, and [`apply-toc`](../commands/apply-toc.md), which reads it.
+For the field-by-field specification, run `calpdf apply-toc --help`.

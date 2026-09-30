@@ -13,8 +13,8 @@ calpdf optimize book.pdf -o optimized.pdf
 
 The first example updates the PDF in place and keeps a backup. To keep the metadata, use `--keep-metadata`. To remove ICC color profiles (document OutputIntents and image ICCBased spaces), use `--strip-color-profiles`.
 
-If `qpdf` fails, calpdf stops and reports an error. To continue anyway, use `--force`. When `qpdf` reports warnings, calpdf prints a warning and continues.
-
 For more information about backups, see [Backup behavior](../reference/backup-behavior.md).
+
+If `qpdf` fails, calpdf stops and reports an error. To continue anyway, use `--force`. When `qpdf` reports warnings, calpdf prints a warning and continues.
 
 The `optimize` command requires `qpdf`, which calpdf does not install for you. For more information, see [External dependencies](../installation.md#external-dependencies).
