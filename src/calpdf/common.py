@@ -18,7 +18,7 @@ def message(exc: BaseException) -> str:
 
 
 def same_path(a: Path, b: Path) -> bool:
-    return a.expanduser().resolve(strict=False) == b.expanduser().resolve(strict=False)
+    return a.expanduser().resolve() == b.expanduser().resolve()
 
 
 def normalize_paths(input_path: Path) -> tuple[Path, Path]:
@@ -28,9 +28,9 @@ def normalize_paths(input_path: Path) -> tuple[Path, Path]:
     output is derived by stripping the suffix.  Otherwise *input_path* is the
     output and the backup is ``<name>.bak``.
     """
-    if input_path.suffix == ".bak":
+    if input_path.name.endswith(".bak"):
         backup_file = input_path
-        output_file = input_path.with_suffix("")
+        output_file = input_path.with_name(input_path.name[:-4])
     else:
         output_file = input_path
         backup_file = input_path.with_name(input_path.name + ".bak")
